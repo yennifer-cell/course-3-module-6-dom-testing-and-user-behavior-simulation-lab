@@ -57,11 +57,17 @@ document.addEventListener('DOMContentLoaded', () => {
 })
 
 fetch(`https://api.weather.gov/alerts/active?area=${state}`)
-Weather Alerts: X
+
+Weather Alerts: 2
+Flood warning in your area
+Tornado watch for the region
+
 input.value = ''
 
 
+
  
+
 
 
 
