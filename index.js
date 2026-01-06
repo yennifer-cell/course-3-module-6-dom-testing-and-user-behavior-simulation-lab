@@ -1,92 +1,67 @@
-// index.js
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.querySelector('#state-input')
+  const button = document.querySelector('#fetch-alerts')
+  const alertsDisplay = document.querySelector('#alerts-display')
+  const errorDiv = document.querySelector('#error-message')
 
-// Select DOM elements
-const stateInput = document.getElementById('state-input');
-const alertsDiv = document.getElementById('alerts');
-const errorDiv = document.getElementById('error-message');
-const submitBtn = document.getElementById('submit-btn');
+  button.addEventListener('click', () => {
+    const state = input.value.trim().toUpperCase()
 
-// --- Step 1: Utility Functions ---
-function createElement(tag, attributes = {}) {
-  const el = document.createElement(tag);
-  for (const key in attributes) {
-    if (key === 'textContent') el.textContent = attributes[key];
-    else el.setAttribute(key, attributes[key]);
-  }
-  return el;
-}
+    fetchWeatherAlerts(state)
 
-function appendElement(parent, element) {
-  if (!parent || !element) return;
-  parent.appendChild(element);
-}
+    // Clear input immediately after click
+    input.value = ''
+  })
 
-function clearElement(parent) {
-  if (!parent) return;
-  parent.innerHTML = '';
-}
+  function fetchWeatherAlerts(state) {
+    fetch(`https://api.weather.gov/alerts/active?area=${state}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`)
+        }
+        return response.json()
+      })
+      .then(data => {
+        console.log(data)
 
-function showError(message, container = errorDiv) {
-  if (!container) return;
-  container.textContent = message;
-  container.style.display = 'block';
-}
+        // Clear any previous errors
+        errorDiv.textContent = ''
+        errorDiv.classList.add('hidden')
 
-function clearError(container = errorDiv) {
-  if (!container) return;
-  container.textContent = '';
-  container.style.display = 'none';
-}
-
-// --- Step 2: DOM Manipulation Functions ---
-function addAlert(text) {
-  const li = createElement('li', { textContent: text });
-  appendElement(alertsDiv, li);
-}
-
-function removeAlerts() {
-  clearElement(alertsDiv);
-}
-
-// --- Step 3: Button Click Handler ---
-function onButtonClick() {
-  clearError(); // Clear previous errors
-  const value = stateInput.value.trim();
-
-  if (!value) {
-    showError('Input cannot be empty'); // Display error for empty input
-    return;
+        displayAlerts(data)
+      })
+      .catch(error => {
+        alertsDisplay.innerHTML = ''
+        errorDiv.textContent = error.message
+        errorDiv.classList.remove('hidden')
+        console.log(error.message)
+      })
   }
 
-  addAlert(`Alert for ${value}`); // Add element to DOM
-  stateInput.value = ''; // Clear input field
-}
+  function displayAlerts(data) {
+    // Clear previous alerts
+    alertsDisplay.innerHTML = ''
 
-// --- Step 4: Form Submission Handler ---
-function onFormSubmit(event) {
-  event.preventDefault(); // Prevent default form submission
-  onButtonClick(); // Reuse button click logic
-}
+    const alertCount = data.features.length
 
-// --- Step 5: Event Listeners ---
-submitBtn.addEventListener('click', onButtonClick);
-document.getElementById('alert-form').addEventListener('submit', onFormSubmit);
+    const summary = document.createElement('h3')
+    summary.textContent = `${data.title}: ${alertCount}`
+    alertsDisplay.appendChild(summary)
 
-// --- Export functions for testing (if using Jest) ---
-if (typeof module !== 'undefined') {
-  module.exports = {
-    createElement,
-    appendElement,
-    clearElement,
-    showError,
-    clearError,
-    addAlert,
-    removeAlerts,
-    onButtonClick,
-    onFormSubmit,
-  };
-}
+    data.features.forEach(alert => {
+      const p = document.createElement('p')
+      p.textContent = alert.properties.headline
+      alertsDisplay.appendChild(p)
+    })
+  }
+})
+
+fetch(`https://api.weather.gov/alerts/active?area=${state}`)
+Weather Alerts: X
+input.value = ''
+
 
  
+
 
 
