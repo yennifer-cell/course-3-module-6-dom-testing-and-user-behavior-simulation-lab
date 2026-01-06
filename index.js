@@ -1,72 +1,59 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const input = document.querySelector('#state-input')
-  const button = document.querySelector('#fetch-alerts')
-  const alertsDisplay = document.querySelector('#alerts-display')
-  const errorDiv = document.querySelector('#error-message')
+// Add an element to the DOM
+function addElementToDOM(containerId, text) {
+  const container = document.getElementById(containerId)
+  if (container) {
+    container.textContent = text
+  }
+}
 
-  button.addEventListener('click', () => {
-    const state = input.value.trim().toUpperCase()
+// Remove an element from the DOM
+function removeElementFromDOM(elementId) {
+  const element = document.getElementById(elementId)
+  if (element) {
+    element.remove()
+  }
+}
 
-    fetchWeatherAlerts(state)
+// Simulate a button click by updating the DOM
+function simulateClick(containerId, text) {
+  const container = document.getElementById(containerId)
+  if (container) {
+    container.textContent = text
+  }
+}
 
-    // Clear input immediately after click
-    input.value = ''
-  })
+// Handle form submission
+function handleFormSubmit(formId, containerId) {
+  const form = document.getElementById(formId)
+  const input = document.getElementById('user-input')
+  const container = document.getElementById(containerId)
+  const errorMessage = document.getElementById('error-message')
 
-  function fetchWeatherAlerts(state) {
-    fetch(`https://api.weather.gov/alerts/active?area=${state}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`)
-        }
-        return response.json()
-      })
-      .then(data => {
-        console.log(data)
-
-        // Clear any previous errors
-        errorDiv.textContent = ''
-        errorDiv.classList.add('hidden')
-
-        displayAlerts(data)
-      })
-      .catch(error => {
-        alertsDisplay.innerHTML = ''
-        errorDiv.textContent = error.message
-        errorDiv.classList.remove('hidden')
-        console.log(error.message)
-      })
+  if (!input.value) {
+    errorMessage.textContent = 'Input cannot be empty'
+    errorMessage.classList.remove('hidden')
+    return
   }
 
-  function displayAlerts(data) {
-    // Clear previous alerts
-    alertsDisplay.innerHTML = ''
+  // Clear error if valid input
+  errorMessage.textContent = ''
+  errorMessage.classList.add('hidden')
 
-    const alertCount = data.features.length
+  // Update DOM with input value
+  container.textContent = input.value
+}
 
-    const summary = document.createElement('h3')
-    summary.textContent = `${data.title}: ${alertCount}`
-    alertsDisplay.appendChild(summary)
-
-    data.features.forEach(alert => {
-      const p = document.createElement('p')
-      p.textContent = alert.properties.headline
-      alertsDisplay.appendChild(p)
-    })
-  }
-})
-
-fetch(`https://api.weather.gov/alerts/active?area=${state}`)
-
-Weather Alerts: 2
-Flood warning in your area
-Tornado watch for the region
-
-input.value = ''
-
+// Export functions for testing
+module.exports = {
+  addElementToDOM,
+  removeElementFromDOM,
+  simulateClick,
+  handleFormSubmit,
+}
 
 
  
+
 
 
 
